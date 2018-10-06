@@ -24,12 +24,12 @@ buildGame = BowlingGame {score = 0, turns = []}
 
 playAll :: BowlingGame -> [Int] -> BowlingGame
 playAll game []    = game
-playAll game turns = foldl play game turns
+playAll game rolls = foldl play game rolls
 
 play :: BowlingGame -> Int -> BowlingGame
 play game skittles =
   let newScore = increaseScore game skittles
-      newTurns = addTurn (turns game) skittles
+      newTurns = addRoll (turns game) skittles
    in BowlingGame {score = newScore, turns = newTurns}
 
 increaseScore :: BowlingGame -> Int -> Int
@@ -61,8 +61,8 @@ turn game =
     (FirstRoll _:previous) -> (length previous, 1)
     all                -> (length all, 0)
 
-addTurn :: [Turn] -> Int -> [Turn]
-addTurn turns skittles =
+addRoll :: [Turn] -> Int -> [Turn]
+addRoll turns skittles =
   let addSecondRoll :: Int -> [Turn] -> [Turn]
       addSecondRoll first previous
         | first + skittles == 10 = Spare {first = first} : previous

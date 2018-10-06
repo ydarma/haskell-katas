@@ -1,0 +1,65 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: bbf89c841562cc385d94fa508dfc4deacfb370a079605b4bc896163c3a80d110
+
+name:           haskell-katas
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/haskell-katas#readme>
+homepage:       https://github.com/githubuser/haskell-katas#readme
+bug-reports:    https://github.com/githubuser/haskell-katas/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2018 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/haskell-katas
+
+library
+  exposed-modules:
+      BowlingGame
+  other-modules:
+      Paths_haskell_katas
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+  default-language: Haskell2010
+
+executable haskell-katas-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_haskell_katas
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , haskell-katas
+  default-language: Haskell2010
+
+test-suite haskell-katas-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      BowlingGameSpec
+      Paths_haskell_katas
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , haskell-katas
+    , tasty
+    , tasty-discover
+    , tasty-hunit
+  default-language: Haskell2010

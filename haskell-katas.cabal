@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: bbf89c841562cc385d94fa508dfc4deacfb370a079605b4bc896163c3a80d110
+-- hash: 80f1d52ba63d05663a3583b14ec1376e4d3f53299c6ccfae914f7745889ffc16
 
 name:           haskell-katas
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 library
   exposed-modules:
       BowlingGame
+      MainArgs
   other-modules:
       Paths_haskell_katas
   hs-source-dirs:
@@ -52,6 +53,7 @@ test-suite haskell-katas-test
   main-is: Spec.hs
   other-modules:
       BowlingGameSpec
+      MainSpec
       Paths_haskell_katas
   hs-source-dirs:
       test

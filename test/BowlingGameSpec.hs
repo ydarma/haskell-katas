@@ -125,3 +125,4 @@ test_invalidSecondRoll =
         case errored of
           Right _ -> assertFailure "Did not catch invalid roll error"
           Left _  -> pure ()
+

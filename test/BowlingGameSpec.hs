@@ -11,8 +11,8 @@ test_buildGame :: TestTree
 test_buildGame =
   let game = buildGame
    in testCase
-        "Testing build BowlingGame"
-        (assertEqual "Score should be 0" 0 (score game))
+        "Testing build BowlingGame" $
+        assertEqual "Score should be 0" 0 (score game)
 
 test_play :: TestTree
 test_play =

@@ -9,16 +9,12 @@ main :: IO ()
 main = fmap run getArgs >>= putStrLn
 
 run :: [String] -> String
-run args =
-  let (kata, kataArgs) = parseKata args
-   in case kata of
-        BowlingGameKata ->
-          let score = runBowlingGame (parseBowlingGameArgs kataArgs)
-           in printf "%d" score
+run ("BowlingGame":args) = runBowlingGame (parseBowlingGameArgs args)
+run _                    = error "uknown kata"
 
-runBowlingGame :: BowlingGameArgs -> Int
+runBowlingGame :: BowlingGameArgs -> String
 runBowlingGame args =
   let playedRolls = rolls args
       game = buildGame
       playedGame = playAll game playedRolls
-   in score playedGame
+   in printf "socre=%d" (score playedGame)

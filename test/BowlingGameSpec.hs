@@ -75,49 +75,60 @@ test_ended :: TestTree
 test_ended =
   let game = buildGame
       gameEnded = playAll game (replicate 21 4)
-   in testCase "Testing game ended" $
-      catch
-        (evaluate (score gameEnded) >> failedGameEndedError)
-        assertSomeException
+   in testCase "Testing game ended" $ do
+      errored <-
+        try (evaluate (score gameEnded)) :: IO (Either SomeException Int)
+      case errored of
+        Right _ -> failedInvalidRollError
+        Left _  -> assertSomeException
 
 test_endedAfterSpare :: TestTree
 test_endedAfterSpare =
   let game = buildGame
       gameEnded = playAll game (replicate 22 5)
-   in testCase "Testing game ended after spare" $
-      catch
-        (evaluate (score gameEnded) >> failedGameEndedError)
-        assertSomeException
+   in testCase "Testing game ended after spare" $ do
+      errored <-
+        try (evaluate (score gameEnded)) :: IO (Either SomeException Int)
+      case errored of
+        Right _ -> failedInvalidRollError
+        Left _  -> assertSomeException
 
 test_endedAfterStrike :: TestTree
 test_endedAfterStrike =
   let game = buildGame
       gameEnded = playAll game (replicate 13 10)
-   in testCase "Testing game ended after strike" $
-      catch
-        (evaluate (score gameEnded) >> failedGameEndedError)
-        assertSomeException
+   in testCase "Testing game ended after strike" $ do
+      errored <-
+        try (evaluate (score gameEnded)) :: IO (Either SomeException Int)
+      case errored of
+        Right _ -> failedInvalidRollError
+        Left _  -> assertSomeException
 
 test_invalidFirstRoll :: TestTree
 test_invalidFirstRoll =
   let game = buildGame
       gameWithInvalidRoll = playAll game [11, 3]
-   in testCase "Testing invalid first roll" $
-      catch
-        (evaluate (score gameWithInvalidRoll) >> failedInvalidRollError)
-        assertSomeException
+   in testCase "Testing invalid first roll" $ do
+      errored <-
+        try (evaluate (score gameWithInvalidRoll)) :: IO (Either SomeException Int)
+      case errored of
+        Right _ -> failedInvalidRollError
+        Left _  -> assertSomeException
 
 test_invalidSecondRoll :: TestTree
 test_invalidSecondRoll =
   let game = buildGame
       gameWithInvalidRoll = playAll game [4, 7, 3]
-   in testCase "Testing invalid second roll" $
-      catch
-        (evaluate (score gameWithInvalidRoll) >> failedInvalidRollError)
-        assertSomeException
+   in testCase "Testing game ended after strike" $ do
+         errored <-
+           try (evaluate (score gameWithInvalidRoll)) :: IO (Either SomeException Int)
+         case errored of
+           Right _ -> failedInvalidRollError
+           Left _  -> assertSomeException
 
-assertSomeException :: SomeException -> IO ()
-assertSomeException _ = pure ()
+
+assertSomeException :: IO ()
+assertSomeException = pure ()
 
 failedGameEndedError :: IO ()
 failedGameEndedError = assertFailure "Did not catch game ended error"

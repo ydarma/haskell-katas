@@ -1,17 +1,27 @@
 module SlidingPuzzle
   ( buildPuzzle
-  , tiles
+  , tileSlots
+  , tileSlot
+  , emptySlot
   , neighborsOfSlot
+  , isNeighborOfSlot
   , moveTile
   , SlidingPuzzle
   ) where
 
 data SlidingPuzzle = SlidingPuzzle
-  { tiles :: [Int]
+  { emptySlot :: Int
+  , tileSlots :: [Int]
   }
 
 buildPuzzle :: SlidingPuzzle
-buildPuzzle = SlidingPuzzle {tiles = [0 .. 15]}
+buildPuzzle = SlidingPuzzle {emptySlot = 0, tileSlots = [1 .. 15]}
+
+tileSlot :: SlidingPuzzle -> Int -> Int
+tileSlot puzzle tile =
+  if tile > 0 && tile < 16
+    then tileSlots puzzle !! (tile - 1)
+    else error "invalid tile"
 
 neighborsOfSlot :: Int -> [Int]
 neighborsOfSlot 0  = [1, 4]
@@ -32,11 +42,22 @@ neighborsOfSlot 14 = [10, 13, 15]
 neighborsOfSlot 15 = [11, 14]
 neighborsOfSlot _  = error "Slot does not exist"
 
+isNeighborOfSlot :: Int -> Int -> Bool
+isNeighborOfSlot slot otherSlot =
+  let neighbors = neighborsOfSlot slot
+   in elem otherSlot neighbors
+
 moveTile :: SlidingPuzzle -> Int -> SlidingPuzzle
 moveTile puzzle tile =
-  let (emptySlot:tilePositions) = tiles puzzle
-      slot = tilePositions !! (tile - 1)
-      newPositions =
-        slot :
-        take (tile - 1) tilePositions ++ emptySlot : drop tile tilePositions
-   in SlidingPuzzle {tiles = newPositions}
+  let empty = emptySlot puzzle
+      slot = tileSlot puzzle tile
+      newSlots =
+        if isNeighborOfSlot slot empty
+          then changeTileSlot (tileSlots puzzle) tile empty
+          else error "invalid move"
+   in SlidingPuzzle {emptySlot = slot, tileSlots = newSlots}
+
+changeTileSlot :: [Int] -> Int -> Int -> [Int]
+changeTileSlot tiles tile slot =
+  let (left, _:right) = splitAt (tile - 1) tiles
+   in left ++ slot : right

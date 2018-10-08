@@ -1,5 +1,6 @@
 module SlidingPuzzleSpec where
 
+import           Control.Exception
 import           SlidingPuzzle
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -8,10 +9,25 @@ test_buildPuzzle :: TestTree
 test_buildPuzzle =
   let puzzle = buildPuzzle
    in testCase "Testing build SlidingPuzzle" $
-      assertEqual "Puzzle should be initialized" [0 .. 15] (tiles puzzle)
+      assertEqual
+        "Tile slots should be initialized"
+        [1 .. 15]
+        (tileSlots puzzle) >>
+      assertEqual "Empty slot should be initialized" 0 (emptySlot puzzle)
 
-test_neighbors :: TestTree
-test_neighbors =
+test_tileSlot :: TestTree
+test_tileSlot =
+  let puzzle = buildPuzzle
+   in testCase "Testing get tile slot" $
+      assertEqual "Tile 4 is in slot 4" 4 (tileSlot puzzle 4) >> do
+        errored <-
+          try (evaluate (tileSlot puzzle 17)) :: IO (Either SomeException Int)
+        case errored of
+          Right _ -> failedInvalidTileError
+          Left _  -> assertSomeException
+
+test_neighborOfSlot :: TestTree
+test_neighborOfSlot =
   testCase "Testing neightbors" $
   assertEqual "Slot 0 has neighbors 1 and 4" [1, 4] (neighborsOfSlot 0) >>
   assertEqual "Slot 1 has neighbors 0, 2 and 5" [0, 2, 5] (neighborsOfSlot 1) >>
@@ -51,13 +67,48 @@ test_neighbors =
     (neighborsOfSlot 14) >>
   assertEqual "Slot 15 has neighbors 11 and 14" [11, 14] (neighborsOfSlot 15)
 
+test_isNeighborOfSlot :: TestTree
+test_isNeighborOfSlot =
+  testCase "Testing isNeighborOfSlot" $
+  assertBool "Slot 4 should be neighbor of slot 0" (isNeighborOfSlot 4 0) >>
+  assertBool "Slot 0 should be neighbor of slot 4" (isNeighborOfSlot 0 4) >>
+  assertBool
+    "Slot 7 should not be neighbor of slot 0"
+    (not (isNeighborOfSlot 7 0)) >>
+  assertBool
+    "Slot 0 should not be neighbor of slot 7"
+    (not (isNeighborOfSlot 0 7))
+
 test_moveTile :: TestTree
 test_moveTile =
   let puzzle = buildPuzzle
       movedPuzzle = moveTile puzzle 4
    in testCase "Testing tile move" $
-      assertEqual "Tile 4 should be in slot 0" 0 (tiles movedPuzzle !! 4) >>
-      assertEqual "Tile 3 should be in slot 3" 3 (tiles movedPuzzle !! 3) >>
-      assertEqual "Tile 5 should be in slot 5" 5 (tiles movedPuzzle !! 5) >>
-      assertEqual "Empty slot should be 4" 4 (head $ tiles movedPuzzle) >>
-      assertEqual "Number of slots should be 16" 16 (length $ tiles movedPuzzle)
+      assertEqual "Tile 4 should be in slot 0" 0 (tileSlot movedPuzzle 4) >>
+      assertEqual "Tile 3 should be in slot 3" 3 (tileSlot movedPuzzle 3) >>
+      assertEqual "Tile 5 should be in slot 5" 5 (tileSlot movedPuzzle 5) >>
+      assertEqual "Empty slot should be 4" 4 (emptySlot movedPuzzle) >>
+      assertEqual
+        "Number of tile slots should be 15"
+        15
+        (length $ tileSlots movedPuzzle)
+
+test_moveTileInvalid :: TestTree
+test_moveTileInvalid =
+  let puzzle = buildPuzzle
+      movedPuzzle = moveTile puzzle 7
+   in testCase "Testing invalid tile move" $ do
+        errored <-
+          try (evaluate (tileSlot movedPuzzle 7)) :: IO (Either SomeException Int)
+        case errored of
+          Right _ -> failedInvalidMoveError
+          Left _  -> assertSomeException
+
+assertSomeException :: IO ()
+assertSomeException = pure ()
+
+failedInvalidTileError :: IO ()
+failedInvalidTileError = assertFailure "Did not catch invalid tile error"
+
+failedInvalidMoveError :: IO ()
+failedInvalidMoveError = assertFailure "Did not catch invalid move error"

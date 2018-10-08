@@ -120,11 +120,11 @@ test_invalidSecondRoll =
   let game = buildGame
       gameWithInvalidRoll = playAll game [4, 7, 3]
    in testCase "Testing game ended after strike" $ do
-         errored <-
-           try (evaluate (score gameWithInvalidRoll)) :: IO (Either SomeException Int)
-         case errored of
-           Right _ -> failedInvalidRollError
-           Left _  -> assertSomeException
+      errored <-
+        try (evaluate (score gameWithInvalidRoll)) :: IO (Either SomeException Int)
+      case errored of
+        Right _ -> failedInvalidRollError
+        Left _  -> assertSomeException
 
 
 assertSomeException :: IO ()

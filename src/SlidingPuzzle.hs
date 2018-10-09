@@ -7,10 +7,15 @@ module SlidingPuzzle
   , isNeighborOfSlot
   , moveTile
   , moveTiles
+  , moveRandom
   , loss
   , lossForTile
   , SlidingPuzzle
   ) where
+
+import           Data.List
+import           Data.Maybe
+import           System.Random
 
 data SlidingPuzzle = SlidingPuzzle
   { emptySlot :: Int
@@ -75,9 +80,18 @@ lossForTile puzzle tile =
       slotRow = div slot 4
       tileCol = mod tile 4
       slotCol = mod slot 4
-   in abs (tileRow-slotRow) + abs (tileCol-slotCol)
+   in abs (tileRow - slotRow) + abs (tileCol - slotCol)
 
 loss :: SlidingPuzzle -> Int
 loss puzzle =
-  let lossesForAll = map (lossForTile puzzle) [1..15]
+  let lossesForAll = map (lossForTile puzzle) [1 .. 15]
    in sum lossesForAll
+
+moveRandom :: RandomGen g => SlidingPuzzle -> g -> (SlidingPuzzle, Int, g)
+moveRandom puzzle rgen =
+  let possibleSlots = neighborsOfSlot (emptySlot puzzle)
+      (idx, ngen) = randomR (0, length possibleSlots - 1) rgen
+      chosenSlot = possibleSlots !! idx
+      chosenTile = 1 + (fromJust . elemIndex chosenSlot $ tileSlots puzzle)
+      movedPuzzle = moveTile puzzle chosenTile
+   in (movedPuzzle, chosenTile, ngen)

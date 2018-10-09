@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7eef7f4423e6a73b5b6db1712f446d4697a784177cbcbfaf801dc8f55cba0980
+-- hash: 2e02e1bcefc74502f7f0db64d852029682b2182bd002ef2a1fc8a6f9fcabaea4
 
 name:           haskell-katas
 version:        0.1.0.0
@@ -35,6 +35,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , random
   default-language: Haskell2010
 
 executable haskell-katas-exe
@@ -47,6 +48,7 @@ executable haskell-katas-exe
   build-depends:
       base >=4.7 && <5
     , haskell-katas
+    , random
   default-language: Haskell2010
 
 test-suite haskell-katas-test
@@ -63,6 +65,7 @@ test-suite haskell-katas-test
   build-depends:
       base >=4.7 && <5
     , haskell-katas
+    , random
     , tasty
     , tasty-discover
     , tasty-hunit

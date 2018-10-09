@@ -2,6 +2,7 @@ module SlidingPuzzleSpec where
 
 import           Control.Exception
 import           SlidingPuzzle
+import           System.Random
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
@@ -118,16 +119,31 @@ test_lossForTile =
   let puzzle = buildPuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing tile loss" $
-      assertEqual "Tile 4 should have loss 2" 2 (lossForTile movedPuzzle 4) >>
-      assertEqual "Tile 5 should have loss 1" 1 (lossForTile movedPuzzle 5) >>
-      assertEqual "Tile 1 should have loss 1" 1 (lossForTile movedPuzzle 1)
+      assertEqual "Tile 4 loss should be 2" 2 (lossForTile movedPuzzle 4) >>
+      assertEqual "Tile 5 loss should be 1" 1 (lossForTile movedPuzzle 5) >>
+      assertEqual "Tile 1 loss should be 1" 1 (lossForTile movedPuzzle 1)
 
 test_loss :: TestTree
 test_loss =
   let puzzle = buildPuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing tile loss" $
-      assertEqual "Puzzle should have loss 4" 4 (loss movedPuzzle)
+      assertEqual "Puzzle loss should be 4" 4 (loss movedPuzzle)
+
+test_moveRandom :: TestTree
+test_moveRandom =
+  let puzzle = buildPuzzle
+      (movedPuzzle, tile, _) = moveRandom puzzle (mkStdGen 324)
+      prevSlot = tileSlot puzzle tile
+   in testCase "Testing random move" $
+      assertBool
+        "Random tile should has been neighbor of empty Slot"
+        (isNeighborOfSlot 0 prevSlot) >>
+      assertEqual
+        "Previous slot should have becomen empty slot"
+        prevSlot
+        (emptySlot movedPuzzle) >>
+      assertEqual "Puzzle loss should be 1" 1 (loss movedPuzzle)
 
 assertSomeException :: IO ()
 assertSomeException = pure ()

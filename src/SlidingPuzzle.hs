@@ -9,6 +9,7 @@ module SlidingPuzzle
   , moveTiles
   , moveRandom
   , loss
+  , lossDiff
   , lossForTile
   , SlidingPuzzle
   ) where
@@ -73,19 +74,29 @@ changeTileSlot tiles tile slot =
   let (left, _:right) = splitAt (tile - 1) tiles
    in left ++ slot : right
 
-lossForTile :: SlidingPuzzle -> Int -> Int
-lossForTile puzzle tile =
-  let slot = tileSlot puzzle tile
-      tileRow = div tile 4
-      slotRow = div slot 4
-      tileCol = mod tile 4
-      slotCol = mod slot 4
-   in abs (tileRow - slotRow) + abs (tileCol - slotCol)
-
 loss :: SlidingPuzzle -> Int
 loss puzzle =
   let lossesForAll = map (lossForTile puzzle) [1 .. 15]
    in sum lossesForAll
+
+lossForTile :: SlidingPuzzle -> Int -> Int
+lossForTile puzzle tile =
+  let slot = tileSlot puzzle tile
+   in dist tile slot
+
+lossDiff :: SlidingPuzzle -> Int -> Int
+lossDiff puzzle tile =
+  let slot = tileSlot puzzle tile
+      empty = emptySlot puzzle
+   in dist tile empty - dist tile slot
+
+dist :: Int -> Int -> Int
+dist tile slot =
+  let tileRow = div tile 4
+      slotRow = div slot 4
+      tileCol = mod tile 4
+      slotCol = mod slot 4
+   in abs (tileRow - slotRow) + abs (tileCol - slotCol)
 
 moveRandom :: RandomGen g => SlidingPuzzle -> g -> (SlidingPuzzle, Int, g)
 moveRandom puzzle rgen =

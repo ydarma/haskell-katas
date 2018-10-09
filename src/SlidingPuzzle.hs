@@ -6,6 +6,9 @@ module SlidingPuzzle
   , neighborsOfSlot
   , isNeighborOfSlot
   , moveTile
+  , moveTiles
+  , loss
+  , lossForTile
   , SlidingPuzzle
   ) where
 
@@ -57,7 +60,24 @@ moveTile puzzle tile =
           else error "invalid move"
    in SlidingPuzzle {emptySlot = slot, tileSlots = newSlots}
 
+moveTiles :: SlidingPuzzle -> [Int] -> SlidingPuzzle
+moveTiles = foldl moveTile
+
 changeTileSlot :: [Int] -> Int -> Int -> [Int]
 changeTileSlot tiles tile slot =
   let (left, _:right) = splitAt (tile - 1) tiles
    in left ++ slot : right
+
+lossForTile :: SlidingPuzzle -> Int -> Int
+lossForTile puzzle tile =
+  let slot = tileSlot puzzle tile
+      tileRow = div tile 4
+      slotRow = div slot 4
+      tileCol = mod tile 4
+      slotCol = mod slot 4
+   in abs (tileRow-slotRow) + abs (tileCol-slotCol)
+
+loss :: SlidingPuzzle -> Int
+loss puzzle =
+  let lossesForAll = map (lossForTile puzzle) [1..15]
+   in sum lossesForAll

@@ -104,6 +104,31 @@ test_moveTileInvalid =
           Right _ -> failedInvalidMoveError
           Left _  -> assertSomeException
 
+test_moveTiles :: TestTree
+test_moveTiles =
+  let puzzle = buildPuzzle
+      movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
+   in testCase "Testing multiple moves" $
+      assertEqual "Tile 4 should be in slot 1" 1 (tileSlot movedPuzzle 4) >>
+      assertEqual "Tile 5 should be in slot 4" 4 (tileSlot movedPuzzle 5) >>
+      assertEqual "Tile 1 should be in slot 5" 5 (tileSlot movedPuzzle 1)
+
+test_lossForTile :: TestTree
+test_lossForTile =
+  let puzzle = buildPuzzle
+      movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
+   in testCase "Testing tile loss" $
+      assertEqual "Tile 4 should have loss 2" 2 (lossForTile movedPuzzle 4) >>
+      assertEqual "Tile 5 should have loss 1" 1 (lossForTile movedPuzzle 5) >>
+      assertEqual "Tile 1 should have loss 1" 1 (lossForTile movedPuzzle 1)
+
+test_loss :: TestTree
+test_loss =
+  let puzzle = buildPuzzle
+      movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
+   in testCase "Testing tile loss" $
+      assertEqual "Puzzle should have loss 4" 4 (loss movedPuzzle)
+
 assertSomeException :: IO ()
 assertSomeException = pure ()
 

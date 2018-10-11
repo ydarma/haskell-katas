@@ -130,11 +130,11 @@ test_loss =
    in testCase "Testing tile loss" $
       assertEqual "Puzzle loss should be 4" 4 (loss movedPuzzle)
 
-test_lossDiff :: TestTree
-test_lossDiff =
+test_lossForMove :: TestTree
+test_lossForMove =
   let puzzle = buildPuzzle
    in testCase "Testing differential loss" $
-      assertEqual "Differential loss for tile 1 should be 1" 1 (lossDiff puzzle 1)
+      assertEqual "Differential loss for tile 1 should be 1" 1 (lossForMove puzzle 1)
 
 test_moveRandom :: TestTree
 test_moveRandom =

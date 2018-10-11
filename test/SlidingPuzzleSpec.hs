@@ -151,6 +151,15 @@ test_moveRandom =
         (emptySlot movedPuzzle) >>
       assertEqual "Puzzle loss should be 1" 1 (loss movedPuzzle)
 
+test_solveSimple :: TestTree
+test_solveSimple =
+  let puzzle = buildPuzzle
+      movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
+      solution = trySolve movedPuzzle 4
+   in testCase "Testing puzzle solver in fixed tries" $
+      assertEqual "Solution shoud be 4, 1, 5, 4" [4, 1, 5, 4] (bestMoves solution) >>
+      assertEqual "Loss should be 0" 0 (bestLoss solution)
+
 assertSomeException :: IO ()
 assertSomeException = pure ()
 

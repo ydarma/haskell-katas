@@ -8,10 +8,12 @@ module SlidingPuzzle
   , moveTile
   , moveTiles
   , moveRandom
+  , shuffle
   , loss
   , lossForMove
   , lossForTile
   , trySolve
+  , bruteSolve
   , SlidingPuzzle
   , bestLoss
   , bestMoves
@@ -104,9 +106,9 @@ dist tile slot =
 
 findSlot :: SlidingPuzzle -> Int -> Int
 findSlot puzzle slot =
-      let tiles = tileSlots puzzle
-          found = elemIndex slot tiles
-       in 1 + fromJust found
+  let tiles = tileSlots puzzle
+      found = elemIndex slot tiles
+   in 1 + fromJust found
 
 moveRandom :: RandomGen g => SlidingPuzzle -> g -> (SlidingPuzzle, Int, g)
 moveRandom puzzle rgen =
@@ -117,41 +119,60 @@ moveRandom puzzle rgen =
       movedPuzzle = moveTile puzzle chosenTile
    in (movedPuzzle, chosenTile, ngen)
 
+shuffle :: RandomGen g => SlidingPuzzle -> Int -> g -> (SlidingPuzzle, [Int], g)
+shuffle puzzle moves rgen =
+  let (movedPuzzle, tile, ngen) = moveRandom puzzle rgen
+      (shuffledPuzzle, nextMoves, ggen) = shuffle movedPuzzle (moves - 1) ngen
+      shuffled
+        | moves == 1 = (movedPuzzle, [tile], ngen)
+        | otherwise = (shuffledPuzzle, tile : nextMoves, ggen)
+   in shuffled
+
 trySolve :: SlidingPuzzle -> Int -> SlidingPuzzleSolution
 trySolve puzzle = trySolveGivenLoss puzzle (loss puzzle)
-  
+
 trySolveGivenLoss :: SlidingPuzzle -> Int -> Int -> SlidingPuzzleSolution
 trySolveGivenLoss puzzle givenLoss tries =
   let possibleSlots = neighborsOfSlot (emptySlot puzzle)
       possibleMoves = map (findSlot puzzle) possibleSlots
-      possibleSolutions = map (trySolveWithMove puzzle givenLoss tries) possibleMoves
+      possibleSolutions =
+        map (trySolveWithMove puzzle givenLoss tries) possibleMoves
       best
-        | tries < givenLoss || givenLoss == 0 = buildSolution givenLoss []
-        | otherwise = let upper = buildSolution 255 []
-                       in foldl compareSolutions upper possibleSolutions
+        | tries < givenLoss || givenLoss == 0 = buildLeafSolution givenLoss
+        | otherwise =
+          let upper = buildLeafSolution 255
+           in foldl compareSolutions upper possibleSolutions
    in best
 
 trySolveWithMove :: SlidingPuzzle -> Int -> Int -> Int -> SlidingPuzzleSolution
 trySolveWithMove puzzle givenLoss tries tile =
   let movedPuzzle = moveTile puzzle tile
       tryLoss = givenLoss + lossForMove puzzle tile
-      solutionSoFar = trySolveGivenLoss movedPuzzle tryLoss (tries-1)
-   in SlidingPuzzleSolution {
-        bestLoss = bestLoss solutionSoFar,
-        bestMoves = tile : bestMoves solutionSoFar
-      }
+      solutionSoFar = trySolveGivenLoss movedPuzzle tryLoss (tries - 1)
+   in SlidingPuzzleSolution
+        { bestLoss = bestLoss solutionSoFar
+        , bestMoves = tile : bestMoves solutionSoFar
+        }
+
+bruteSolve :: SlidingPuzzle -> SlidingPuzzleSolution
+bruteSolve puzzle =
+  let brute = map (trySolve puzzle) [0 .. 255]
+      solution = find (\p -> bestLoss p == 0) brute
+   in fromJust solution
 
 data SlidingPuzzleSolution = SlidingPuzzleSolution
-  { bestLoss :: Int
+  { bestLoss  :: Int
   , bestMoves :: [Int]
   }
 
-compareSolutions :: SlidingPuzzleSolution -> SlidingPuzzleSolution -> SlidingPuzzleSolution
+compareSolutions ::
+     SlidingPuzzleSolution -> SlidingPuzzleSolution -> SlidingPuzzleSolution
 compareSolutions first second =
-    let choice
-          | bestLoss first < bestLoss second = first
-          | otherwise = second
- in choice
+  let choice
+        | bestLoss first < bestLoss second = first
+        | otherwise = second
+   in choice
 
-buildSolution :: Int -> [Int] -> SlidingPuzzleSolution
-buildSolution bLoss bMoves = SlidingPuzzleSolution { bestLoss = bLoss, bestMoves = bMoves }
+buildLeafSolution :: Int -> SlidingPuzzleSolution
+buildLeafSolution bLoss =
+  SlidingPuzzleSolution {bestLoss = bLoss, bestMoves = []}

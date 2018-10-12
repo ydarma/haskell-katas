@@ -134,7 +134,10 @@ test_lossForMove :: TestTree
 test_lossForMove =
   let puzzle = buildPuzzle
    in testCase "Testing differential loss" $
-      assertEqual "Differential loss for tile 1 should be 1" 1 (lossForMove puzzle 1)
+      assertEqual
+        "Differential loss for tile 1 should be 1"
+        1
+        (lossForMove puzzle 1)
 
 test_moveRandom :: TestTree
 test_moveRandom =
@@ -151,14 +154,34 @@ test_moveRandom =
         (emptySlot movedPuzzle) >>
       assertEqual "Puzzle loss should be 1" 1 (loss movedPuzzle)
 
+test_shuffle :: TestTree
+test_shuffle =
+  let puzzle = buildPuzzle
+      (shuffledPuzzle, _, _) = shuffle puzzle 200 (mkStdGen 324)
+   in testCase "Testing shuffle" $
+      assertBool "Loss should be greater than 15" (15 < loss shuffledPuzzle)
+
 test_solveSimple :: TestTree
 test_solveSimple =
   let puzzle = buildPuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
       solution = trySolve movedPuzzle 4
    in testCase "Testing puzzle solver in fixed tries" $
-      assertEqual "Solution shoud be 4, 1, 5, 4" [4, 1, 5, 4] (bestMoves solution) >>
+      assertEqual
+        "Solution shoud be 4, 1, 5, 4"
+        [4, 1, 5, 4]
+        (bestMoves solution) >>
       assertEqual "Loss should be 0" 0 (bestLoss solution)
+
+test_solveBrute :: TestTree
+test_solveBrute =
+  let puzzle = buildPuzzle
+      (shuffledPuzzle, _, _) = shuffle puzzle 60 (mkStdGen 324)
+      solution = bruteSolve shuffledPuzzle
+      playedPuzzle = moveTiles shuffledPuzzle (bestMoves solution)
+   in testCase "Testing puzzle brute force solver" $
+      assertEqual "Solution loss should be 0" 0 (bestLoss solution) >>
+      assertEqual "Final puzzle loss should be 0" 0 (loss playedPuzzle)
 
 assertSomeException :: IO ()
 assertSomeException = pure ()

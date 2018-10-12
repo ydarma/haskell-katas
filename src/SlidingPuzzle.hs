@@ -124,7 +124,7 @@ shuffle puzzle moves rgen =
   let (movedPuzzle, tile, ngen) = moveRandom puzzle rgen
       (shuffledPuzzle, nextMoves, ggen) = shuffle movedPuzzle (moves - 1) ngen
       shuffled
-        | moves == 1 = (movedPuzzle, [tile], ngen)
+        | moves == 0 = (puzzle, [], rgen)
         | otherwise = (shuffledPuzzle, tile : nextMoves, ggen)
    in shuffled
 

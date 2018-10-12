@@ -34,11 +34,13 @@ runSlidingPuzzle args =
 
 printSlidingPuzzle :: SlidingPuzzle -> String
 printSlidingPuzzle puzzle =
-  let slotTiles = zip ((emptySlot puzzle):(tileSlots puzzle)) [0..]
-      ordered = sortBy (\(s1, t1) -> \(s2, t2) -> compare s1 s2) slotTiles
-      tiles = map (\(s, t) -> t) ordered
-      printRow :: [Int] -> String
-      printRow (c1:c2:c3:c4:r) =
-        printf "%2d %2d %2d %2d\n%s" c1 c2 c3 c4 (printRow r)
-      printRow _ = ""
-   in printRow tiles
+  let slot2Tiles = zip ((emptySlot puzzle):(tileSlots puzzle)) [0..]
+      compareSlots = \(s1, t1) -> \(s2, t2) -> compare s1 s2
+      slotOrdered = sortBy compareSlots slot2Tiles
+      tiles = map (\(s, t) -> t) slotOrdered
+   in printSlidingPuzzleSlots tiles
+
+printSlidingPuzzleSlots :: [Int] -> String
+printSlidingPuzzleSlots (c1:c2:c3:c4:r) =
+  printf "%2d %2d %2d %2d\n%s" c1 c2 c3 c4 (printSlidingPuzzleSlots r)
+printSlidingPuzzleSlots _ = ""

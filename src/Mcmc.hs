@@ -21,9 +21,8 @@ accept ::
   -> Double
   -> g
   -> (Bool, g)
-accept current@MarkovState {state = currState, loss = currLoss} new@MarkovState { state = newState
-                                                                                , loss = newLoss
-                                                                                } beta rgen =
+accept current@MarkovState {state = currState, loss = currLoss}
+       new@MarkovState { state = newState , loss = newLoss } beta rgen =
   let proba = conditionalProbability new current
       backProba = conditionalProbability current new
       diffLoss = currLoss - newLoss

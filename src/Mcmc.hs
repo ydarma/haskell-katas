@@ -5,47 +5,51 @@ import           Data.Maybe
 import           System.Random
 
 class MarkovChain m where
-  randomWalk :: RandomGen g => m -> g -> (m, Double, g)
-  conditionalProbabilities :: m -> m -> (Double, Double)
+  randomWalk :: RandomGen g => MarkovState m -> g -> (MarkovState m, g)
+  conditionalProbability :: MarkovState m -> MarkovState m -> Double
+
+data MarkovChain m =>
+     MarkovState m = MarkovState
+  { state :: m
+  , loss  :: Double
+  }
 
 accept ::
      (MarkovChain m, RandomGen g)
-  => m
-  -> (m, Double)
+  => MarkovState m
+  -> MarkovState m
   -> Double
   -> g
   -> (Bool, g)
-accept chain walk beta rgen =
-  let (otherChain, diff) = walk
-      (proba, backProba) = conditionalProbabilities chain otherChain
-      rgibbs = exp (diff / beta) * backProba / proba
+accept current@MarkovState {state = currState, loss = currLoss} new@MarkovState { state = newState
+                                                                                , loss = newLoss
+                                                                                } beta rgen =
+  let proba = conditionalProbability new current
+      backProba = conditionalProbability current new
+      diffLoss = currLoss - newLoss
+      rgibbs = exp (diffLoss / beta) * backProba / proba
       (runif, ggen) = randomR (0.0, 1.0) rgen
-   in (rgibbs < runif, ggen)
+   in (runif < rgibbs, ggen)
 
-iter :: (MarkovChain m, RandomGen g) => m -> Double -> g -> (m, Double, g)
-iter chain beta rgen =
-  let (walk, diff, ggen) = randomWalk chain rgen
-      (accepted, ngen) = accept chain (walk, diff) beta ggen
+iter ::
+     (MarkovChain m, RandomGen g)
+  => (MarkovState m, g)
+  -> Double
+  -> (MarkovState m, g)
+iter (current, rgen) beta =
+  let (new, ggen) = randomWalk current rgen
+      (accepted, ngen) = accept current new beta ggen
    in if accepted
-        then (walk, diff, ngen)
-        else (chain, 0, ngen)
+        then (new, ngen)
+        else (current, ngen)
 
 mcmc ::
      (MarkovChain m, RandomGen g)
-  => (m, Double)
-  -> Int
-  -> Double
-  -> g
-  -> (m, Double, g)
-mcmc chain numIter beta rgen =
-  let (currChain, currLoss) = chain
-      doIter current _ =
-        let (currChain, currLoss, ggen) = current
-            (nextChain, diff, ngen) = iter currChain beta ggen
-         in (nextChain, currLoss + diff, ngen)
-      iterations = scanl doIter (currChain, currLoss, rgen) [0 .. numIter]
-      stop current =
-        let (_, currLoss, _) = current
-         in currLoss == 0
-      solution = find stop iterations
-   in fromMaybe (last iterations) solution
+  => (MarkovState m, g)
+  -> [Double]
+  -> (MarkovState m, g)
+mcmc current [] = current
+mcmc (current@MarkovState {loss = 0}, rgen) _ = (current, rgen)
+mcmc currState (beta:betaSequence) =
+  let new = iter currState beta
+   in mcmc new betaSequence

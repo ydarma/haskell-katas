@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2c13fef032285ffa7bb41d0726591f69bdc6e48d52bd6babe8eaa3f45105438e
+-- hash: be6b6b34cccfd2843763b43298f3f2b09253f45b695b179f8eb1d11b9b79f6a1
 
 name:           haskell-katas
 version:        0.1.0.0
@@ -29,6 +29,7 @@ library
       BowlingGame
       MainArgs
       Mcmc
+      McmcSlidingPuzzle
       SlidingPuzzle
   other-modules:
       Paths_haskell_katas

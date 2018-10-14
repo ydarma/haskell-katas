@@ -1,48 +1,40 @@
 module McmcSpec where
 
 import           Mcmc
-import           SlidingPuzzle
+import           McmcSlidingPuzzle
+import qualified SlidingPuzzle     as SP
 import           System.Random
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-instance MarkovChain SlidingPuzzle where
-  randomWalk puzzle rgen =
-    let (movedPuzzle, tile, ggen) = moveRandom puzzle rgen
-        lossDiff = fromIntegral $ lossForMove puzzle tile
-     in (movedPuzzle, lossDiff, ggen)
-  conditionalProbabilities puzzle otherPuzzle =
-    let neighbors = neighborsOfSlot (emptySlot puzzle)
-        otherNeighbors = neighborsOfSlot (emptySlot otherPuzzle)
-        probability = 1.0 / fromIntegral (length neighbors)
-        otherProbability = 1.0 / fromIntegral (length otherNeighbors)
-     in (probability, otherProbability)
-
 test_accept :: TestTree
 test_accept =
-  let puzzle = buildPuzzle
-      (walk, diff, ggen) = randomWalk puzzle (mkStdGen 324)
-      (accepted, _) = accept walk (puzzle, -diff) 0.1 ggen
+  let puzzle = SP.buildPuzzle
+      initState =
+        MarkovState {state = puzzle, loss = fromIntegral $ SP.loss puzzle}
+      (newState, ggen) = randomWalk initState (mkStdGen 324)
+      (accepted, _) = accept newState initState 0.1 ggen
    in testCase "Testing mcmc proposal" $
       assertBool "Better loss should be accepted" accepted
 
 test_iter :: TestTree
 test_iter =
-  let (puzzle, _, rgen) = shuffle buildPuzzle 3 (mkStdGen 324)
-      initLoss = fromIntegral $ loss puzzle
-      (iteredPuzzle, iteredLoss, ggen) = iter puzzle 0.1 rgen
-      finalLoss = fromIntegral $ loss iteredPuzzle
+  let (puzzle, _, rgen) = SP.shuffle SP.buildPuzzle 3 (mkStdGen 324)
+      initLoss = fromIntegral $ SP.loss puzzle
+      initState = MarkovState {state = puzzle, loss = initLoss}
+      (iteredState, ggen) = iter (initState, rgen) 0.1
+      finalLoss = fromIntegral $ SP.loss (state iteredState)
    in testCase "Testing mcmc iteration" $
-      assertEqual "Loss should be equal" finalLoss (initLoss + iteredLoss)
+      assertEqual "Loss should be equal" finalLoss (loss iteredState)
 
 test_mcmc :: TestTree
 test_mcmc =
-  let (puzzle, _, rgen) = shuffle buildPuzzle 10 (mkStdGen 324)
-      (mcmcPuzzle, mcmcLoss, _) =
-        mcmc (puzzle, fromIntegral $ loss puzzle) 30 0.1 rgen
+  let (puzzle, _, rgen) = SP.shuffle SP.buildPuzzle 200 (mkStdGen 324)
+      initLoss = fromIntegral $ SP.loss puzzle
+      initState = MarkovState {state = puzzle, loss = initLoss}
+      betaSequence = replicate 1000 1
+      (mcmcState, _) = mcmc (initState, rgen) betaSequence
+      finalLoss = fromIntegral $ SP.loss (state mcmcState)
    in testCase "Testing mcmc run" $
-      assertEqual
-        "Loss should be equal"
-        (fromIntegral $ loss mcmcPuzzle)
-        mcmcLoss >>
-      assertBool "Loss should have decreased " (loss mcmcPuzzle < loss puzzle)
+      assertEqual "Loss should be equal" finalLoss (loss mcmcState) >>
+      assertBool "Loss should have decreased " (finalLoss < initLoss)

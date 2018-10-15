@@ -1,5 +1,5 @@
 module BowlingGame
-  ( buildGame
+  ( makeGame
   , playAll
   , play
   , score
@@ -19,8 +19,8 @@ data BowlingGame = BowlingGame
   , turns :: [Turn]
   } deriving (Show)
 
-buildGame :: BowlingGame
-buildGame = BowlingGame {score = 0, turns = []}
+makeGame :: BowlingGame
+makeGame = BowlingGame {score = 0, turns = []}
 
 playAll :: BowlingGame -> [Int] -> BowlingGame
 playAll game []    = game

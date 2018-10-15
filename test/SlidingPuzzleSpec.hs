@@ -6,10 +6,10 @@ import           System.Random
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-test_buildPuzzle :: TestTree
-test_buildPuzzle =
-  let puzzle = buildPuzzle
-   in testCase "Testing build SlidingPuzzle" $
+test_makePuzzle :: TestTree
+test_makePuzzle =
+  let puzzle = makePuzzle
+   in testCase "Testing make SlidingPuzzle" $
       assertEqual
         "Tile slots should be initialized"
         [1 .. 15]
@@ -18,7 +18,7 @@ test_buildPuzzle =
 
 test_tileSlot :: TestTree
 test_tileSlot =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
    in testCase "Testing get tile slot" $
       assertEqual "Tile 4 is in slot 4" 4 (tileSlot puzzle 4) >> do
         errored <-
@@ -82,7 +82,7 @@ test_isNeighborOfSlot =
 
 test_moveTile :: TestTree
 test_moveTile =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTile puzzle 4
    in testCase "Testing tile move" $
       assertEqual "Tile 4 should be in slot 0" 0 (tileSlot movedPuzzle 4) >>
@@ -96,7 +96,7 @@ test_moveTile =
 
 test_moveTileInvalid :: TestTree
 test_moveTileInvalid =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTile puzzle 7
    in testCase "Testing invalid tile move" $ do
         errored <-
@@ -107,7 +107,7 @@ test_moveTileInvalid =
 
 test_moveTiles :: TestTree
 test_moveTiles =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing multiple moves" $
       assertEqual "Tile 4 should be in slot 1" 1 (tileSlot movedPuzzle 4) >>
@@ -116,7 +116,7 @@ test_moveTiles =
 
 test_lossForTile :: TestTree
 test_lossForTile =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing tile loss" $
       assertEqual "Tile 4 loss should be 2" 2 (lossForTile movedPuzzle 4) >>
@@ -125,14 +125,14 @@ test_lossForTile =
 
 test_loss :: TestTree
 test_loss =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing tile loss" $
       assertEqual "Puzzle loss should be 4" 4 (loss movedPuzzle)
 
 test_lossForMove :: TestTree
 test_lossForMove =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
    in testCase "Testing differential loss" $
       assertEqual
         "Differential loss for tile 1 should be 1"
@@ -141,7 +141,7 @@ test_lossForMove =
 
 test_moveRandom :: TestTree
 test_moveRandom =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       (movedPuzzle, tile, _) = moveRandom puzzle (mkStdGen 324)
       prevSlot = tileSlot puzzle tile
    in testCase "Testing random move" $
@@ -156,14 +156,14 @@ test_moveRandom =
 
 test_shuffle :: TestTree
 test_shuffle =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       (shuffledPuzzle, _, _) = shuffle puzzle 200 (mkStdGen 324)
    in testCase "Testing shuffle" $
       assertBool "Loss should be greater than 15" (15 < loss shuffledPuzzle)
 
 test_solveSimple :: TestTree
 test_solveSimple =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
       solution = trySolve movedPuzzle 4
    in testCase "Testing puzzle solver in fixed tries" $
@@ -175,7 +175,7 @@ test_solveSimple =
 
 test_solveBrute :: TestTree
 test_solveBrute =
-  let puzzle = buildPuzzle
+  let puzzle = makePuzzle
       (shuffledPuzzle, _, _) = shuffle puzzle 60 (mkStdGen 324)
       solution = bruteSolve shuffledPuzzle
       playedPuzzle = moveTiles shuffledPuzzle (bestMoves solution)

@@ -9,7 +9,7 @@ import           Test.Tasty.HUnit
 
 test_accept :: TestTree
 test_accept =
-  let puzzle = SP.buildPuzzle
+  let puzzle = SP.makePuzzle
       initState =
         MarkovState {state = puzzle, loss = fromIntegral $ SP.loss puzzle}
       (newState, ggen) = randomWalk initState (mkStdGen 324)
@@ -19,7 +19,7 @@ test_accept =
 
 test_iter :: TestTree
 test_iter =
-  let (puzzle, _, rgen) = SP.shuffle SP.buildPuzzle 3 (mkStdGen 324)
+  let (puzzle, _, rgen) = SP.shuffle SP.makePuzzle 3 (mkStdGen 324)
       initLoss = fromIntegral $ SP.loss puzzle
       initState = makeSlidingPuzzleState puzzle
       (iteredState, ggen) = iter (initState, rgen) 0.1
@@ -29,7 +29,7 @@ test_iter =
 
 test_mcmc :: TestTree
 test_mcmc =
-  let (puzzle, _, rgen) = SP.shuffle SP.buildPuzzle 200 (mkStdGen 324)
+  let (puzzle, _, rgen) = SP.shuffle SP.makePuzzle 200 (mkStdGen 324)
       initState = makeSlidingPuzzleState puzzle
       betaSequence = replicate 1000 1
       (finalState, _) = mcmc (initState, rgen) betaSequence

@@ -7,16 +7,16 @@ import           Control.Exception
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-test_buildGame :: TestTree
-test_buildGame =
-  let game = buildGame
+test_makeGame :: TestTree
+test_makeGame =
+  let game = makeGame
    in testCase
-        "Testing build BowlingGame" $
+        "Testing make BowlingGame" $
         assertEqual "Score should be 0" 0 (score game)
 
 test_play :: TestTree
 test_play =
-  let game = buildGame
+  let game = makeGame
       gameAfertOneRoll = play game 3
    in testCase "Testing play 3" $
       assertEqual "Score should be 3" 3 (score gameAfertOneRoll) >>
@@ -24,7 +24,7 @@ test_play =
 
 test_playTwice :: TestTree
 test_playTwice =
-  let game = buildGame
+  let game = makeGame
       playTwice = play . play game
       gameAfterTwoRolls = playTwice 3 6
    in testCase "Testing play 3 then 6" $
@@ -33,7 +33,7 @@ test_playTwice =
 
 test_playMore :: TestTree
 test_playMore =
-  let game = buildGame
+  let game = makeGame
       gameAfterThreeRolls = playAll game [3, 6, 1]
    in testCase "Testing play 3 then 6 the 1" $
       assertEqual "Score should be 10" 10 (score gameAfterThreeRolls) >>
@@ -41,7 +41,7 @@ test_playMore =
 
 test_spare :: TestTree
 test_spare =
-  let game = buildGame
+  let game = makeGame
       gameWithSpare = playAll game [1, 2, 8, 1, 3, 7, 4]
    in testCase "Testing play 1, 2, 8, 1, spare, 4" $
       assertEqual "Score should be 30" 30 (score gameWithSpare) >>
@@ -49,7 +49,7 @@ test_spare =
 
 test_strike :: TestTree
 test_strike =
-  let game = buildGame
+  let game = makeGame
       gameWithStrike = playAll game [1, 2, 10, 3, 7, 4]
    in testCase "Testing play 1, 2, strike, spare, 4" $
       assertEqual "Score should be 41" 41 (score gameWithStrike) >>
@@ -57,7 +57,7 @@ test_strike =
 
 test_allStrikes :: TestTree
 test_allStrikes =
-  let game = buildGame
+  let game = makeGame
       gameWithAllStrikes = playAll game (replicate 12 10)
    in testCase "Testing play all strikes" $
       assertEqual "Score should be 300" 300 (score gameWithAllStrikes) >>
@@ -65,7 +65,7 @@ test_allStrikes =
 
 test_allSpares :: TestTree
 test_allSpares =
-  let game = buildGame
+  let game = makeGame
       gameWithAllStrikes = playAll game (replicate 21 5)
    in testCase "Testing play all spares" $
       assertEqual "Score should be 150" 150 (score gameWithAllStrikes) >>
@@ -73,7 +73,7 @@ test_allSpares =
 
 test_ended :: TestTree
 test_ended =
-  let game = buildGame
+  let game = makeGame
       gameEnded = playAll game (replicate 21 4)
    in testCase "Testing game ended" $ do
       errored <-
@@ -84,7 +84,7 @@ test_ended =
 
 test_endedAfterSpare :: TestTree
 test_endedAfterSpare =
-  let game = buildGame
+  let game = makeGame
       gameEnded = playAll game (replicate 22 5)
    in testCase "Testing game ended after spare" $ do
       errored <-
@@ -95,7 +95,7 @@ test_endedAfterSpare =
 
 test_endedAfterStrike :: TestTree
 test_endedAfterStrike =
-  let game = buildGame
+  let game = makeGame
       gameEnded = playAll game (replicate 13 10)
    in testCase "Testing game ended after strike" $ do
       errored <-
@@ -106,7 +106,7 @@ test_endedAfterStrike =
 
 test_invalidFirstRoll :: TestTree
 test_invalidFirstRoll =
-  let game = buildGame
+  let game = makeGame
       gameWithInvalidRoll = playAll game [11, 3]
    in testCase "Testing invalid first roll" $ do
       errored <-
@@ -117,7 +117,7 @@ test_invalidFirstRoll =
 
 test_invalidSecondRoll :: TestTree
 test_invalidSecondRoll =
-  let game = buildGame
+  let game = makeGame
       gameWithInvalidRoll = playAll game [4, 7, 3]
    in testCase "Testing game ended after strike" $ do
       errored <-

@@ -1,5 +1,5 @@
 module SlidingPuzzle
-  ( buildPuzzle
+  ( makePuzzle
   , tileSlots
   , tileSlot
   , emptySlot
@@ -29,8 +29,8 @@ data SlidingPuzzle = SlidingPuzzle
   , tileSlots :: [Int]
   }
 
-buildPuzzle :: SlidingPuzzle
-buildPuzzle = SlidingPuzzle {emptySlot = 0, tileSlots = [1 .. 15]}
+makePuzzle :: SlidingPuzzle
+makePuzzle = SlidingPuzzle {emptySlot = 0, tileSlots = [1 .. 15]}
 
 tileSlot :: SlidingPuzzle -> Int -> Int
 tileSlot puzzle tile =
@@ -138,9 +138,9 @@ trySolveGivenLoss puzzle givenLoss tries =
       possibleSolutions =
         map (trySolveWithMove puzzle givenLoss tries) possibleMoves
       best
-        | tries < givenLoss || givenLoss == 0 = buildLeafSolution givenLoss
+        | tries < givenLoss || givenLoss == 0 = makeLeafSolution givenLoss
         | otherwise =
-          let upper = buildLeafSolution 255
+          let upper = makeLeafSolution 255
            in foldl compareSolutions upper possibleSolutions
    in best
 
@@ -173,6 +173,6 @@ compareSolutions first second =
         | otherwise = second
    in choice
 
-buildLeafSolution :: Int -> SlidingPuzzleSolution
-buildLeafSolution bLoss =
+makeLeafSolution :: Int -> SlidingPuzzleSolution
+makeLeafSolution bLoss =
   SlidingPuzzleSolution {bestLoss = bLoss, bestMoves = []}

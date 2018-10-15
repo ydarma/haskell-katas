@@ -19,13 +19,13 @@ run _                      = error "uknown kata"
 runBowlingGame :: BowlingGameArgs -> String
 runBowlingGame args =
   let playedRolls = rolls args
-      playedGame = playAll buildGame playedRolls
+      playedGame = playAll makeGame playedRolls
    in printf "score=%d" (score playedGame)
 
 runSlidingPuzzle :: SlidingPuzzleArgs -> String
 runSlidingPuzzle args =
   let tileMoves = moves args
-      (shuffledPuzzle, _, _) = shuffle buildPuzzle tileMoves (mkStdGen 324)
+      (shuffledPuzzle, _, _) = shuffle makePuzzle tileMoves (mkStdGen 324)
       solution = bruteSolve shuffledPuzzle
    in printf
         "puzzle=\n%s\nmoves=%s"

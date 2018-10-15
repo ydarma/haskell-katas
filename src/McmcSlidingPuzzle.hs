@@ -13,3 +13,6 @@ instance MarkovChain SP.SlidingPuzzle where
     let neighbors = SP.neighborsOfSlot (SP.emptySlot puzzle)
         probability = 1.0 / fromIntegral (length neighbors)
      in probability
+
+makeSlidingPuzzleState :: SP.SlidingPuzzle -> MarkovState SP.SlidingPuzzle
+makeSlidingPuzzleState puzzle = MarkovState { state = puzzle, loss = fromIntegral $ SP.loss puzzle }

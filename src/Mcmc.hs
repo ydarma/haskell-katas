@@ -8,8 +8,7 @@ class MarkovChain m where
   randomWalk :: RandomGen g => MarkovState m -> g -> (MarkovState m, g)
   conditionalProbability :: MarkovState m -> MarkovState m -> Double
 
-data MarkovChain m =>
-     MarkovState m = MarkovState
+data MarkovState m = MarkovState
   { state :: m
   , loss  :: Double
   }

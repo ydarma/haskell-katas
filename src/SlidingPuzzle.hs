@@ -1,24 +1,4 @@
-module SlidingPuzzle
-  ( makePuzzle
-  , tileSlots
-  , tileSlot
-  , emptySlot
-  , neighborsOfSlot
-  , isNeighborOfSlot
-  , moveTile
-  , moveTiles
-  , moveRandom
-  , shuffle
-  , loss
-  , lossForMove
-  , lossForTile
-  , trySolve
-  , bruteSolve
-  , SlidingPuzzle
-  , bestLoss
-  , bestMoves
-  , SlidingPuzzleSolution
-  ) where
+module SlidingPuzzle where
 
 import           Data.List
 import           Data.Maybe
@@ -28,6 +8,7 @@ data SlidingPuzzle = SlidingPuzzle
   { emptySlot :: Int
   , tileSlots :: [Int]
   }
+  deriving Eq
 
 makePuzzle :: SlidingPuzzle
 makePuzzle = SlidingPuzzle {emptySlot = 0, tileSlots = [1 .. 15]}
@@ -126,35 +107,52 @@ shuffle puzzle moves rgen =
       (shuffledPuzzle, nextMoves, ggen) = shuffle movedPuzzle (moves - 1) ngen
    in (shuffledPuzzle, tile : nextMoves, ggen)
 
-trySolve :: SlidingPuzzle -> Int -> SlidingPuzzleSolution
-trySolve puzzle = trySolveGivenLoss puzzle (loss puzzle)
+bruteSolve :: SlidingPuzzle -> SlidingPuzzleSolution
+bruteSolve puzzle =
+   ida puzzle SlidingPuzzleSolution { bestLoss = loss puzzle, bestMoves = [] } 0
 
-trySolveGivenLoss :: SlidingPuzzle -> Int -> Int -> SlidingPuzzleSolution
-trySolveGivenLoss puzzle givenLoss tries
+ida :: SlidingPuzzle -> SlidingPuzzleSolution -> Int -> SlidingPuzzleSolution
+ida puzzle solution@SlidingPuzzleSolution { bestLoss = 0 } _ = solution
+ida puzzle solution triesSoFar =
+  let minimalTries = length (bestMoves solution) + bestLoss solution
+      deeperTries
+        | triesSoFar < minimalTries = minimalTries
+        | otherwise = triesSoFar + 1
+      deeperSolution = trySolve puzzle deeperTries
+   in ida puzzle deeperSolution deeperTries
+
+trySolve :: SlidingPuzzle -> Int -> SlidingPuzzleSolution
+trySolve puzzle = trySolveGivenLoss [puzzle] (loss puzzle)
+
+trySolveGivenLoss :: [SlidingPuzzle] -> Int -> Int -> SlidingPuzzleSolution
+trySolveGivenLoss path@(puzzle:parents) givenLoss tries
   | tries < givenLoss || givenLoss == 0 =
     SlidingPuzzleSolution {bestLoss = givenLoss, bestMoves = []}
   | otherwise =
     let possibleSlots = neighborsOfSlot (emptySlot puzzle)
         possibleMoves = map (findSlot puzzle) possibleSlots
-        solver = trySolveWithMove puzzle givenLoss tries
-        oneSolution:otherSolutions = map solver possibleMoves
+        solver = trySolveWithMove path givenLoss tries
+        allSolutions = map solver possibleMoves
+        oneSolution:otherSolutions = allSolutions
      in foldl compareSolutions oneSolution otherSolutions
 
-trySolveWithMove :: SlidingPuzzle -> Int -> Int -> Int -> SlidingPuzzleSolution
-trySolveWithMove puzzle givenLoss tries tile =
+trySolveWithMove :: [SlidingPuzzle] -> Int -> Int -> Int -> SlidingPuzzleSolution
+trySolveWithMove path@(puzzle:parents) givenLoss tries tile =
   let movedPuzzle = moveTile puzzle tile
-      tryLoss = givenLoss + lossForMove puzzle tile
-      solutionSoFar = trySolveGivenLoss movedPuzzle tryLoss (tries - 1)
-   in SlidingPuzzleSolution
-        { bestLoss = bestLoss solutionSoFar
-        , bestMoves = tile : bestMoves solutionSoFar
-        }
-
-bruteSolve :: SlidingPuzzle -> SlidingPuzzleSolution
-bruteSolve puzzle =
-  let brute = map (trySolve puzzle) [0 .. 255]
-      solution = find (\p -> bestLoss p == 0) brute
-   in fromJust solution
+      solutionSoFar
+        | elem movedPuzzle parents =
+          SlidingPuzzleSolution
+            { bestLoss = givenLoss
+            , bestMoves = []
+            }
+        | otherwise =
+          let tryLoss = givenLoss + lossForMove puzzle tile
+              solution = trySolveGivenLoss (movedPuzzle:path) tryLoss (tries - 1)
+           in SlidingPuzzleSolution
+               { bestLoss = bestLoss solution
+               , bestMoves = tile : bestMoves solution
+               }
+   in solutionSoFar
 
 data SlidingPuzzleSolution = SlidingPuzzleSolution
   { bestLoss  :: Int

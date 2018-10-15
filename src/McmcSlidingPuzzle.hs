@@ -14,5 +14,5 @@ instance MarkovChain SP.SlidingPuzzle where
         probability = 1.0 / fromIntegral (length neighbors)
      in probability
 
-makeSlidingPuzzleState :: SP.SlidingPuzzle -> MarkovState SP.SlidingPuzzle
-makeSlidingPuzzleState puzzle = MarkovState { state = puzzle, loss = fromIntegral $ SP.loss puzzle }
+makePuzzleState :: SP.SlidingPuzzle -> MarkovState SP.SlidingPuzzle
+makePuzzleState puzzle = MarkovState { state = puzzle, loss = fromIntegral $ SP.loss puzzle }

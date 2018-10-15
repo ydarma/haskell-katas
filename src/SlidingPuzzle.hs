@@ -33,10 +33,9 @@ makePuzzle :: SlidingPuzzle
 makePuzzle = SlidingPuzzle {emptySlot = 0, tileSlots = [1 .. 15]}
 
 tileSlot :: SlidingPuzzle -> Int -> Int
-tileSlot puzzle tile =
-  if tile > 0 && tile < 16
-    then tileSlots puzzle !! (tile - 1)
-    else error "invalid tile"
+tileSlot puzzle tile
+  | tile > 0 && tile < 16 = tileSlots puzzle !! (tile - 1)
+  | otherwise = error "invalid tile"
 
 neighborsOfSlot :: Int -> [Int]
 neighborsOfSlot 0  = [1, 4]
@@ -62,18 +61,19 @@ isNeighborOfSlot slot otherSlot =
   let neighbors = neighborsOfSlot slot
    in elem otherSlot neighbors
 
+moveTiles :: SlidingPuzzle -> [Int] -> SlidingPuzzle
+moveTiles = foldl moveTile
+
 moveTile :: SlidingPuzzle -> Int -> SlidingPuzzle
 moveTile puzzle tile =
   let empty = emptySlot puzzle
       slot = tileSlot puzzle tile
-      newSlots =
-        if isNeighborOfSlot slot empty
-          then changeTileSlot (tileSlots puzzle) tile empty
-          else error "invalid move"
+      newSlots
+        | isNeighborOfSlot slot empty =
+          let currentSlots = tileSlots puzzle
+           in changeTileSlot currentSlots tile empty
+        | otherwise = error "invalid move"
    in SlidingPuzzle {emptySlot = slot, tileSlots = newSlots}
-
-moveTiles :: SlidingPuzzle -> [Int] -> SlidingPuzzle
-moveTiles = foldl moveTile
 
 changeTileSlot :: [Int] -> Int -> Int -> [Int]
 changeTileSlot tiles tile slot =
@@ -120,29 +120,25 @@ moveRandom puzzle rgen =
    in (movedPuzzle, chosenTile, ngen)
 
 shuffle :: RandomGen g => SlidingPuzzle -> Int -> g -> (SlidingPuzzle, [Int], g)
+shuffle puzzle 0 rgen = (puzzle, [], rgen)
 shuffle puzzle moves rgen =
   let (movedPuzzle, tile, ngen) = moveRandom puzzle rgen
       (shuffledPuzzle, nextMoves, ggen) = shuffle movedPuzzle (moves - 1) ngen
-      shuffled
-        | moves == 0 = (puzzle, [], rgen)
-        | otherwise = (shuffledPuzzle, tile : nextMoves, ggen)
-   in shuffled
+   in (shuffledPuzzle, tile : nextMoves, ggen)
 
 trySolve :: SlidingPuzzle -> Int -> SlidingPuzzleSolution
 trySolve puzzle = trySolveGivenLoss puzzle (loss puzzle)
 
 trySolveGivenLoss :: SlidingPuzzle -> Int -> Int -> SlidingPuzzleSolution
-trySolveGivenLoss puzzle givenLoss tries =
-  let possibleSlots = neighborsOfSlot (emptySlot puzzle)
-      possibleMoves = map (findSlot puzzle) possibleSlots
-      possibleSolutions =
-        map (trySolveWithMove puzzle givenLoss tries) possibleMoves
-      best
-        | tries < givenLoss || givenLoss == 0 = makeLeafSolution givenLoss
-        | otherwise =
-          let upper = makeLeafSolution 255
-           in foldl compareSolutions upper possibleSolutions
-   in best
+trySolveGivenLoss puzzle givenLoss tries
+  | tries < givenLoss || givenLoss == 0 =
+    SlidingPuzzleSolution {bestLoss = givenLoss, bestMoves = []}
+  | otherwise =
+    let possibleSlots = neighborsOfSlot (emptySlot puzzle)
+        possibleMoves = map (findSlot puzzle) possibleSlots
+        solver = trySolveWithMove puzzle givenLoss tries
+        oneSolution:otherSolutions = map solver possibleMoves
+     in foldl compareSolutions oneSolution otherSolutions
 
 trySolveWithMove :: SlidingPuzzle -> Int -> Int -> Int -> SlidingPuzzleSolution
 trySolveWithMove puzzle givenLoss tries tile =
@@ -167,12 +163,6 @@ data SlidingPuzzleSolution = SlidingPuzzleSolution
 
 compareSolutions ::
      SlidingPuzzleSolution -> SlidingPuzzleSolution -> SlidingPuzzleSolution
-compareSolutions first second =
-  let choice
-        | bestLoss first < bestLoss second = first
-        | otherwise = second
-   in choice
-
-makeLeafSolution :: Int -> SlidingPuzzleSolution
-makeLeafSolution bLoss =
-  SlidingPuzzleSolution {bestLoss = bLoss, bestMoves = []}
+compareSolutions first second
+  | bestLoss first < bestLoss second = first
+  | otherwise = second

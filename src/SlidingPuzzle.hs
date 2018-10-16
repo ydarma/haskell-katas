@@ -126,8 +126,7 @@ trySolve puzzle = trySolveGivenLoss [puzzle] (loss puzzle)
 
 trySolveGivenLoss :: [SlidingPuzzle] -> Int -> Int -> SlidingPuzzleSolution
 trySolveGivenLoss path@(puzzle:parents) givenLoss tries
-  | tries < givenLoss || givenLoss == 0 =
-    SlidingPuzzleSolution {bestLoss = givenLoss, bestMoves = []}
+  | tries < givenLoss || givenLoss == 0 = makeLeafSlidingPuzzleSolution givenLoss
   | otherwise =
     let possibleSlots = neighborsOfSlot (emptySlot puzzle)
         possibleMoves = map (findSlot puzzle) possibleSlots
@@ -140,24 +139,25 @@ trySolveWithMove :: [SlidingPuzzle] -> Int -> Int -> Int -> SlidingPuzzleSolutio
 trySolveWithMove path@(puzzle:parents) givenLoss tries tile =
   let movedPuzzle = moveTile puzzle tile
       solutionSoFar
-        | elem movedPuzzle parents =
-          SlidingPuzzleSolution
-            { bestLoss = givenLoss
-            , bestMoves = []
-            }
+        | elem movedPuzzle parents = makeLeafSlidingPuzzleSolution givenLoss
         | otherwise =
           let tryLoss = givenLoss + lossForMove puzzle tile
               solution = trySolveGivenLoss (movedPuzzle:path) tryLoss (tries - 1)
-           in SlidingPuzzleSolution
-               { bestLoss = bestLoss solution
-               , bestMoves = tile : bestMoves solution
-               }
+           in makeParentSlidingPuzzleSolution solution tile
    in solutionSoFar
 
 data SlidingPuzzleSolution = SlidingPuzzleSolution
   { bestLoss  :: Int
   , bestMoves :: [Int]
   }
+
+makeLeafSlidingPuzzleSolution :: Int -> SlidingPuzzleSolution
+makeLeafSlidingPuzzleSolution leafLoss =
+  SlidingPuzzleSolution { bestLoss = leafLoss, bestMoves = [] }
+
+makeParentSlidingPuzzleSolution :: SlidingPuzzleSolution -> Int -> SlidingPuzzleSolution
+makeParentSlidingPuzzleSolution child tile =
+  SlidingPuzzleSolution { bestLoss = bestLoss child, bestMoves = tile : bestMoves child }
 
 compareSolutions ::
      SlidingPuzzleSolution -> SlidingPuzzleSolution -> SlidingPuzzleSolution

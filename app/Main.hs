@@ -14,7 +14,7 @@ main = fmap run getArgs >>= putStrLn
 run :: [String] -> String
 run ("BowlingGame":args)   = runBowlingGame (parseBowlingGameArgs args)
 run ("SlidingPuzzle":args) = runSlidingPuzzle (parseSlidingPuzzleArgs args)
-run _                      = error "uknown kata"
+run _                      = "Kata name required : BowlingGame | SlidingPuzzle"
 
 runBowlingGame :: BowlingGameArgs -> String
 runBowlingGame args =

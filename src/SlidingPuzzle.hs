@@ -122,28 +122,32 @@ ida puzzle solution triesSoFar =
    in ida puzzle deeperSolution deeperTries
 
 trySolve :: SlidingPuzzle -> Int -> SlidingPuzzleSolution
-trySolve puzzle = trySolveGivenLoss [puzzle] (loss puzzle)
+trySolve puzzle tries = 
+  let solutions = trySolveGivenLoss [puzzle] True (loss puzzle) tries
+   in foldSolutions solutions
 
-trySolveGivenLoss :: [SlidingPuzzle] -> Int -> Int -> SlidingPuzzleSolution
-trySolveGivenLoss path@(puzzle:parents) givenLoss tries
-  | tries < givenLoss || givenLoss == 0 = makeLeafSlidingPuzzleSolution givenLoss
+trySolveGivenLoss :: [SlidingPuzzle] -> Bool -> Int -> Int -> [SlidingPuzzleSolution]
+trySolveGivenLoss path@(puzzle:parents) reduce givenLoss tries
+  | tries < givenLoss || givenLoss == 0 = [makeLeafSlidingPuzzleSolution givenLoss]
   | otherwise =
     let possibleSlots = neighborsOfSlot (emptySlot puzzle)
         possibleMoves = map (findSlot puzzle) possibleSlots
-        solver = trySolveWithMove path givenLoss tries
+        solver = trySolveWithMove path reduce givenLoss tries
         allSolutions = map solver possibleMoves
-        oneSolution:otherSolutions = allSolutions
-     in foldl compareSolutions oneSolution otherSolutions
+     in if reduce then
+          map foldSolutions $ filter (not . null) allSolutions
+        else
+          concat allSolutions
 
-trySolveWithMove :: [SlidingPuzzle] -> Int -> Int -> Int -> SlidingPuzzleSolution
-trySolveWithMove path@(puzzle:parents) givenLoss tries tile =
+trySolveWithMove :: [SlidingPuzzle] -> Bool -> Int -> Int -> Int -> [SlidingPuzzleSolution]
+trySolveWithMove path@(puzzle:parents) reduce givenLoss tries tile =
   let movedPuzzle = moveTile puzzle tile
       solutionSoFar
-        | elem movedPuzzle parents = makeLeafSlidingPuzzleSolution givenLoss
+        | elem movedPuzzle parents = []
         | otherwise =
           let tryLoss = givenLoss + lossForMove puzzle tile
-              solution = trySolveGivenLoss (movedPuzzle:path) tryLoss (tries - 1)
-           in makeParentSlidingPuzzleSolution solution tile
+              solution = trySolveGivenLoss (movedPuzzle:path) reduce tryLoss (tries - 1)
+           in map (makeParentSlidingPuzzleSolution tile) solution
    in solutionSoFar
 
 data SlidingPuzzleSolution = SlidingPuzzleSolution
@@ -155,8 +159,8 @@ makeLeafSlidingPuzzleSolution :: Int -> SlidingPuzzleSolution
 makeLeafSlidingPuzzleSolution leafLoss =
   SlidingPuzzleSolution { bestLoss = leafLoss, bestMoves = [] }
 
-makeParentSlidingPuzzleSolution :: SlidingPuzzleSolution -> Int -> SlidingPuzzleSolution
-makeParentSlidingPuzzleSolution child tile =
+makeParentSlidingPuzzleSolution :: Int -> SlidingPuzzleSolution -> SlidingPuzzleSolution
+makeParentSlidingPuzzleSolution tile child =
   SlidingPuzzleSolution { bestLoss = bestLoss child, bestMoves = tile : bestMoves child }
 
 compareSolutions ::
@@ -164,3 +168,9 @@ compareSolutions ::
 compareSolutions first second
   | bestLoss first < bestLoss second = first
   | otherwise = second
+
+foldSolutions :: [SlidingPuzzleSolution] -> SlidingPuzzleSolution
+foldSolutions [] = error "cannot fold empty solution list"
+foldSolutions [theSolution] = theSolution
+foldSolutions (theSolution@SlidingPuzzleSolution{bestLoss=0}:otherSolutions) = theSolution
+foldSolutions (oneSolution:otherSolutions) = compareSolutions oneSolution $ foldSolutions otherSolutions

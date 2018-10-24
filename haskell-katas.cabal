@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 50ada7099b1bbdab64bb3f7c7dd1c3a86181780496c3a40087a52494e47f7093
+-- hash: 2050d95898fef577618e9d139bff944e97bbbf2c58ad3985edeb5c298e82c6f9
 
 name:           haskell-katas
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , parallel
     , random
   default-language: Haskell2010
 
@@ -51,6 +52,7 @@ executable haskell-katas-exe
   build-depends:
       base >=4.7 && <5
     , haskell-katas
+    , parallel
     , random
   default-language: Haskell2010
 
@@ -69,6 +71,7 @@ test-suite haskell-katas-test
   build-depends:
       base >=4.7 && <5
     , haskell-katas
+    , parallel
     , random
     , tasty
     , tasty-discover

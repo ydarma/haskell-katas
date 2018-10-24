@@ -10,9 +10,9 @@ parseBowlingGameArgs args =
    in BowlingGameArgs {rolls = rolls}
 
 newtype SlidingPuzzleArgs = SlidingPuzzleArgs
-  { moves :: Int
+  { shuffleMoves :: Int
   }
 
 parseSlidingPuzzleArgs :: [String] -> SlidingPuzzleArgs
-parseSlidingPuzzleArgs [moves] = SlidingPuzzleArgs {moves = read moves}
+parseSlidingPuzzleArgs [shuffleMoves] = SlidingPuzzleArgs {shuffleMoves = read shuffleMoves}
 parseSlidingPuzzleArgs _       = error "trailing arguments"

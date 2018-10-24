@@ -24,13 +24,13 @@ runBowlingGame args =
 
 runSlidingPuzzle :: SlidingPuzzleArgs -> String
 runSlidingPuzzle args =
-  let tileMoves = moves args
+  let tileMoves = shuffleMoves args
       (shuffledPuzzle, _, _) = shuffle makePuzzle tileMoves (mkStdGen 324)
       solution = bruteSolve shuffledPuzzle
    in printf
         "puzzle=\n%s\nmoves=%s"
         (printSlidingPuzzle shuffledPuzzle)
-        (show $ bestMoves solution)
+        (show $ moves solution)
 
 printSlidingPuzzle :: SlidingPuzzle -> String
 printSlidingPuzzle puzzle =

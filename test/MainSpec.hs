@@ -15,7 +15,7 @@ test_parseSlidingPuzzleArgs :: TestTree
 test_parseSlidingPuzzleArgs =
   let args = parseSlidingPuzzleArgs ["100"]
    in testCase "Testing parse SlidingPuzzle arguments" $
-      assertEqual "Args should be 100" 100 (moves args)
+      assertEqual "Args should be 100" 100 (shuffleMoves args)
 
 test_parseSlidingPuzzleTrailingArgs :: TestTree
 test_parseSlidingPuzzleTrailingArgs =

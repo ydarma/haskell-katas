@@ -170,17 +170,17 @@ test_solveSimple =
       assertEqual
         "Solution shoud be 4, 1, 5, 4"
         [4, 1, 5, 4]
-        (bestMoves solution) >>
-      assertEqual "Loss should be 0" 0 (bestLoss solution)
+        (moves solution) >>
+      assertEqual "Loss should be 0" 0 (finalLoss solution)
 
 test_solveBrute :: TestTree
 test_solveBrute =
   let puzzle = makePuzzle
       (shuffledPuzzle, _, _) = shuffle puzzle 60 (mkStdGen 324)
       solution = bruteSolve shuffledPuzzle
-      playedPuzzle = moveTiles shuffledPuzzle (bestMoves solution)
+      playedPuzzle = moveTiles shuffledPuzzle (moves solution)
    in testCase "Testing puzzle brute force solver" $
-      assertEqual "Solution loss should be 0" 0 (bestLoss solution) >>
+      assertEqual "Solution loss should be 0" 0 (finalLoss solution) >>
       assertEqual "Final puzzle loss should be 0" 0 (loss playedPuzzle)
 
 assertSomeException :: IO ()

@@ -133,11 +133,11 @@ trySolveGivenLoss path@(puzzle:parents) reduce givenLoss tries
     let possibleSlots = neighborsOfSlot (emptySlot puzzle)
         possibleMoves = map (findSlot puzzle) possibleSlots
         solver = trySolveWithMove path reduce givenLoss tries
-        allSolutions = map solver possibleMoves
-     in if reduce then
-          map foldSolutions $ filter (not . null) allSolutions
+        allSolutions = concatMap solver possibleMoves
+     in if not reduce || null allSolutions then
+          allSolutions
         else
-          concat allSolutions
+          [foldSolutions allSolutions]
 
 trySolveWithMove :: [SlidingPuzzle] -> Bool -> Int -> Int -> Int -> [SlidingPuzzleSolution]
 trySolveWithMove path@(puzzle:parents) reduce givenLoss tries tile =

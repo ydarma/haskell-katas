@@ -3,6 +3,7 @@ module SlidingPuzzle where
 import           Data.List
 import           Data.Maybe
 import           System.Random
+import           Control.Parallel.Strategies
 
 data SlidingPuzzle = SlidingPuzzle
   { emptySlot :: Int
@@ -126,28 +127,35 @@ trySolve puzzle tries =
   let initSolution =
         SlidingPuzzleSolution
           {finalLoss = loss puzzle, moves = [], path = [puzzle]}
-      finalSolutions = trySolveGivenLoss initSolution tries
+      finalSolutions = trySolveGivenLoss initSolution tries 0
    in fromJust finalSolutions
 
-trySolveGivenLoss :: SlidingPuzzleSolution -> Int -> Maybe SlidingPuzzleSolution
-trySolveGivenLoss solution tries =
+trySolveGivenLoss :: SlidingPuzzleSolution -> Int -> Int -> Maybe SlidingPuzzleSolution
+trySolveGivenLoss solution tries soFar =
   let (puzzle:_) = path solution
       givenLoss = finalLoss solution
       solutions
-        | tries < givenLoss || givenLoss == 0 = Just solution
+        | tries - soFar < givenLoss || givenLoss == 0 = Just solution
         | otherwise =
           let possibleSlots = neighborsOfSlot (emptySlot puzzle)
               possibleMoves = map (findSlot puzzle) possibleSlots
-              allSolutions = map (trySolveWithMove solution tries) possibleMoves
+              solve = trySolveWithMove solution tries soFar
+              allSolutions = if soFar < 6 && tries > 40
+                               then parMap parSolve solve possibleMoves
+                               else map solve possibleMoves
               validSolutions = map fromJust $ filter isJust allSolutions
            in case validSolutions of
                 []            -> Nothing
                 foudSolutions -> Just $ foldSolutions foudSolutions
    in solutions
 
+parSolve :: Strategy (Maybe SlidingPuzzleSolution)
+parSolve m@(Just solution) = seq (finalLoss solution) return m
+parSolve Nothing = return Nothing
+
 trySolveWithMove ::
-     SlidingPuzzleSolution -> Int -> Int -> Maybe SlidingPuzzleSolution
-trySolveWithMove solution tries tile =
+     SlidingPuzzleSolution -> Int -> Int -> Int -> Maybe SlidingPuzzleSolution
+trySolveWithMove solution tries soFar tile =
   let givenLoss = finalLoss solution
       givenMoves = moves solution
       givenPath@(puzzle:parents) = path solution
@@ -161,7 +169,7 @@ trySolveWithMove solution tries tile =
               trySolution =
                 SlidingPuzzleSolution
                   {finalLoss = tryLoss, moves = tryMoves, path = tryPath}
-              deeper = trySolveGivenLoss trySolution (tries - 1)
+              deeper = trySolveGivenLoss trySolution tries (soFar + 1)
            in deeper
    in foundSolution
 

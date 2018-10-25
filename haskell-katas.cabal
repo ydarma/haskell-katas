@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2050d95898fef577618e9d139bff944e97bbbf2c58ad3985edeb5c298e82c6f9
+-- hash: 5aed5e2ff594f73261a9bc9d77375ddd1de8590ad6eae756b35771e96bd4afb8
 
 name:           haskell-katas
 version:        0.1.0.0
@@ -48,7 +48,7 @@ executable haskell-katas-exe
       Paths_haskell_katas
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , haskell-katas

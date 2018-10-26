@@ -3,7 +3,7 @@ version:             0.1.0.0
 github:              "ydarma/haskell-katas"
 license:             BSD3
 author:              "Why Darma ?"
-maintainer:          "ydarma@gmail.com"
+maintainer:          "ydarma@null.net"
 copyright:           "None"
 
 extra-source-files:

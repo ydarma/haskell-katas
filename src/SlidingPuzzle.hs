@@ -186,13 +186,12 @@ mapSolution solution tries@(totalTries, triesSoFar)
 trySolveWithMove ::
      SlidingPuzzleSolution -> (Int, Int) -> Tile -> Maybe SlidingPuzzleSolution
 trySolveWithMove solution (totalTries, triesSoFar) tile
-  | elem tryPuzzle parents = Nothing
+  | isCycling trySolution = Nothing
   | totalTries - triesSoFar <= tryLoss = Just trySolution
   | tryLoss == 0 = Just trySolution
   | otherwise = iterareSolution trySolution (totalTries, triesSoFar + 1)
   where
     trySolution = makeSolutionWithMove solution tile
-    (tryPuzzle:_:parents) = path trySolution
     tryLoss = finalLoss trySolution
 
 -- a solution described by loss, moves and all seen configurations
@@ -224,6 +223,11 @@ makeSolutionWithMove solution tile =
       tryPath = movedPuzzle : givenPath
    in SlidingPuzzleSolution
         {finalLoss = tryLoss, moves = tryMoves, path = tryPath}
+
+isCycling :: SlidingPuzzleSolution -> Bool
+isCycling solution =
+  let (puzzle:_:parents) = path solution
+   in elem puzzle parents
 
 -- find the best solution
 foldSolutions :: [SlidingPuzzleSolution] -> SlidingPuzzleSolution

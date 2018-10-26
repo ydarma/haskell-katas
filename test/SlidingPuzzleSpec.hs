@@ -20,9 +20,9 @@ test_tileSlot :: TestTree
 test_tileSlot =
   let puzzle = makePuzzle
    in testCase "Testing get tile slot" $
-      assertEqual "Tile 4 is in slot 4" 4 (tileSlot puzzle 4) >> do
+      assertEqual "Tile 4 is in slot 4" 4 (findTile puzzle 4) >> do
         errored <-
-          try (evaluate (tileSlot puzzle 17)) :: IO (Either SomeException Int)
+          try (evaluate (findTile puzzle 17)) :: IO (Either SomeException Int)
         case errored of
           Right _ -> failedInvalidTileError
           Left _  -> assertSomeException
@@ -85,9 +85,9 @@ test_moveTile =
   let puzzle = makePuzzle
       movedPuzzle = moveTile puzzle 4
    in testCase "Testing tile move" $
-      assertEqual "Tile 4 should be in slot 0" 0 (tileSlot movedPuzzle 4) >>
-      assertEqual "Tile 3 should be in slot 3" 3 (tileSlot movedPuzzle 3) >>
-      assertEqual "Tile 5 should be in slot 5" 5 (tileSlot movedPuzzle 5) >>
+      assertEqual "Tile 4 should be in slot 0" 0 (findTile movedPuzzle 4) >>
+      assertEqual "Tile 3 should be in slot 3" 3 (findTile movedPuzzle 3) >>
+      assertEqual "Tile 5 should be in slot 5" 5 (findTile movedPuzzle 5) >>
       assertEqual "Empty slot should be 4" 4 (emptySlot movedPuzzle) >>
       assertEqual
         "Number of tile slots should be 15"
@@ -100,7 +100,7 @@ test_moveTileInvalid =
       movedPuzzle = moveTile puzzle 7
    in testCase "Testing invalid tile move" $ do
         errored <-
-          try (evaluate (tileSlot movedPuzzle 7)) :: IO (Either SomeException Int)
+          try (evaluate (findTile movedPuzzle 7)) :: IO (Either SomeException Int)
         case errored of
           Right _ -> failedInvalidMoveError
           Left _  -> assertSomeException
@@ -110,9 +110,9 @@ test_moveTiles =
   let puzzle = makePuzzle
       movedPuzzle = moveTiles puzzle [4, 5, 1, 4]
    in testCase "Testing multiple moves" $
-      assertEqual "Tile 4 should be in slot 1" 1 (tileSlot movedPuzzle 4) >>
-      assertEqual "Tile 5 should be in slot 4" 4 (tileSlot movedPuzzle 5) >>
-      assertEqual "Tile 1 should be in slot 5" 5 (tileSlot movedPuzzle 1)
+      assertEqual "Tile 4 should be in slot 1" 1 (findTile movedPuzzle 4) >>
+      assertEqual "Tile 5 should be in slot 4" 4 (findTile movedPuzzle 5) >>
+      assertEqual "Tile 1 should be in slot 5" 5 (findTile movedPuzzle 1)
 
 test_lossForTile :: TestTree
 test_lossForTile =
@@ -143,7 +143,7 @@ test_moveRandom :: TestTree
 test_moveRandom =
   let puzzle = makePuzzle
       (movedPuzzle, tile, _) = moveRandom puzzle (mkStdGen 324)
-      prevSlot = tileSlot puzzle tile
+      prevSlot = findTile puzzle tile
    in testCase "Testing random move" $
       assertBool
         "Random tile should has been neighbor of empty Slot"

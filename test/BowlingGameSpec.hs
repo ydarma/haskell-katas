@@ -20,7 +20,7 @@ test_play =
       gameAfertOneRoll = play game 3
    in testCase "Testing play 3" $
       assertEqual "Score should be 3" 3 (score gameAfertOneRoll) >>
-      assertEqual "Turn should be 0, 1" (0, 1) (turn gameAfertOneRoll)
+      assertEqual "Turn should be 0, 1" (0, 1) (rollOffset gameAfertOneRoll)
 
 test_playTwice :: TestTree
 test_playTwice =
@@ -29,7 +29,7 @@ test_playTwice =
       gameAfterTwoRolls = playTwice 3 6
    in testCase "Testing play 3 then 6" $
       assertEqual "Score should be 9" 9 (score gameAfterTwoRolls) >>
-      assertEqual "Turn should be 1, 0" (1, 0) (turn gameAfterTwoRolls)
+      assertEqual "Turn should be 1, 0" (1, 0) (rollOffset gameAfterTwoRolls)
 
 test_playMore :: TestTree
 test_playMore =
@@ -37,7 +37,7 @@ test_playMore =
       gameAfterThreeRolls = playAll game [3, 6, 1]
    in testCase "Testing play 3 then 6 the 1" $
       assertEqual "Score should be 10" 10 (score gameAfterThreeRolls) >>
-      assertEqual "Turn should be 1, 1" (1, 1) (turn gameAfterThreeRolls)
+      assertEqual "Turn should be 1, 1" (1, 1) (rollOffset gameAfterThreeRolls)
 
 test_spare :: TestTree
 test_spare =
@@ -45,7 +45,7 @@ test_spare =
       gameWithSpare = playAll game [1, 2, 8, 1, 3, 7, 4]
    in testCase "Testing play 1, 2, 8, 1, spare, 4" $
       assertEqual "Score should be 30" 30 (score gameWithSpare) >>
-      assertEqual "Turn should be 3, 1" (3, 1) (turn gameWithSpare)
+      assertEqual "Turn should be 3, 1" (3, 1) (rollOffset gameWithSpare)
 
 test_strike :: TestTree
 test_strike =
@@ -53,7 +53,7 @@ test_strike =
       gameWithStrike = playAll game [1, 2, 10, 3, 7, 4]
    in testCase "Testing play 1, 2, strike, spare, 4" $
       assertEqual "Score should be 41" 41 (score gameWithStrike) >>
-      assertEqual "Turn should be (3, 1)" (3, 1) (turn gameWithStrike)
+      assertEqual "Turn should be (3, 1)" (3, 1) (rollOffset gameWithStrike)
 
 test_allStrikes :: TestTree
 test_allStrikes =
@@ -61,7 +61,7 @@ test_allStrikes =
       gameWithAllStrikes = playAll game (replicate 12 10)
    in testCase "Testing play all strikes" $
       assertEqual "Score should be 300" 300 (score gameWithAllStrikes) >>
-      assertEqual "Turn should be (12, 0)" (12, 0) (turn gameWithAllStrikes)
+      assertEqual "Turn should be (12, 0)" (12, 0) (rollOffset gameWithAllStrikes)
 
 test_allSpares :: TestTree
 test_allSpares =
@@ -69,7 +69,7 @@ test_allSpares =
       gameWithAllStrikes = playAll game (replicate 21 5)
    in testCase "Testing play all spares" $
       assertEqual "Score should be 150" 150 (score gameWithAllStrikes) >>
-      assertEqual "Turn should be (10, 1)" (10, 1) (turn gameWithAllStrikes)
+      assertEqual "Turn should be (10, 1)" (10, 1) (rollOffset gameWithAllStrikes)
 
 test_ended :: TestTree
 test_ended =

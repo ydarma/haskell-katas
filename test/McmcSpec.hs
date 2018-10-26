@@ -20,7 +20,7 @@ test_iter =
   let (puzzle, _, rgen) = SP.shuffle SP.makePuzzle 3 (mkStdGen 324)
       initState = makePuzzleState puzzle
       (iteredState, ggen) = iter (initState, rgen) 0.1
-      finalLoss = fromIntegral $ SP.loss (state iteredState)
+      finalLoss = fromIntegral $ SP.loss (value iteredState)
    in testCase "Testing mcmc iteration" $
       assertEqual "Loss should be equal" finalLoss (loss iteredState)
 

@@ -153,7 +153,7 @@ trySolve puzzle totalTries =
       finalSolutions = iterareSolution initSolution (totalTries, 0)
    in fromJust finalSolutions
 
--- iterate from an incomplete solution to a deeper valid solution, if exists
+-- iterate from an incomplete solution to a deeper solution, if any
 iterareSolution ::
      SlidingPuzzleSolution -> (Int, Int) -> Maybe SlidingPuzzleSolution
 iterareSolution solution tries =
@@ -166,7 +166,7 @@ iterareSolution solution tries =
         []            -> Nothing
         foudSolutions -> Just $ foldSolutions foudSolutions
 
--- map a solution to candidate deeper solutions, valid or not
+-- map a solution to candidate deeper solutions, possibly in parallel
 mapSolution ::
      SlidingPuzzleSolution
   -> (Int, Int)
@@ -182,7 +182,7 @@ mapSolution solution tries@(totalTries, triesSoFar)
     parSolve m@(Just solution) = seq (finalLoss solution) return m
     parSolve Nothing           = return Nothing
 
--- try to build a deeper solution with the given move, valid if unseen before
+-- try to build a deeper solution with the given move if unseen before
 trySolveWithMove ::
      SlidingPuzzleSolution -> (Int, Int) -> Tile -> Maybe SlidingPuzzleSolution
 trySolveWithMove solution (totalTries, triesSoFar) tile

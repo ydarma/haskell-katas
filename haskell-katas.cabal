@@ -4,16 +4,16 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5aed5e2ff594f73261a9bc9d77375ddd1de8590ad6eae756b35771e96bd4afb8
+-- hash: f498e343c6b1e9908eb1ada9bbca5872b1ef9a402ae90cff38ca716cc2dd2a48
 
 name:           haskell-katas
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/haskell-katas#readme>
-homepage:       https://github.com/githubuser/haskell-katas#readme
-bug-reports:    https://github.com/githubuser/haskell-katas/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2018 Author name here
+homepage:       https://github.com/ydarma/haskell-katas#readme
+bug-reports:    https://github.com/ydarma/haskell-katas/issues
+author:         Why Darma ?
+maintainer:     ydarma@null.net
+copyright:      None
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -23,7 +23,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/haskell-katas
+  location: https://github.com/ydarma/haskell-katas
 
 library
   exposed-modules:
@@ -31,6 +31,7 @@ library
       MainArgs
       Mcmc
       McmcSlidingPuzzle
+      PrimeNumbers
       SlidingPuzzle
   other-modules:
       Paths_haskell_katas
@@ -38,6 +39,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , containers
     , parallel
     , random
   default-language: Haskell2010
@@ -51,6 +53,7 @@ executable haskell-katas-exe
   ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , haskell-katas
     , parallel
     , random
@@ -63,6 +66,7 @@ test-suite haskell-katas-test
       BowlingGameSpec
       MainSpec
       McmcSpec
+      PrimeNumbersSpec
       SlidingPuzzleSpec
       Paths_haskell_katas
   hs-source-dirs:
@@ -70,6 +74,7 @@ test-suite haskell-katas-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , containers
     , haskell-katas
     , parallel
     , random

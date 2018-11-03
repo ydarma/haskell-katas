@@ -1,11 +1,11 @@
 module PrimeNumbers where
 
-data PrimeGenerator = PrimeGenerator { primes :: [Int], multiplesOfPrimes :: [Int] }
+data OddPrimeGenerator = OddPrimeGenerator { primes :: [Int], multiplesOfPrimes :: [Int] }
 
-makePrimeGenerator :: PrimeGenerator
-makePrimeGenerator = PrimeGenerator { primes = [2], multiplesOfPrimes = [] }
+makeOddPrimeGenerator :: OddPrimeGenerator
+makeOddPrimeGenerator = OddPrimeGenerator { primes = [3], multiplesOfPrimes = [] }
 
-isSquareOfNextRelevantPrime :: PrimeGenerator -> Int -> (PrimeGenerator, Bool)
+isSquareOfNextRelevantPrime :: OddPrimeGenerator -> Int -> (OddPrimeGenerator, Bool)
 isSquareOfNextRelevantPrime generator candidate =
   let nextRelevant = primes generator !! (length $ multiplesOfPrimes generator)
       nextSquare = nextRelevant * nextRelevant
@@ -15,7 +15,7 @@ isSquareOfNextRelevantPrime generator candidate =
         | otherwise = generator
    in (newGenerator, isNextSquare)
 
-isMultipleOfPrime :: PrimeGenerator -> Int -> (PrimeGenerator, Bool)
+isMultipleOfPrime :: OddPrimeGenerator -> Int -> (OddPrimeGenerator, Bool)
 isMultipleOfPrime generator candidate =
   let incr multiple = if multiple < candidate
                         then multiple
@@ -32,16 +32,16 @@ isMultipleOfPrime generator candidate =
         | otherwise = addPrime generator candidate
    in (newGenerator, isMultiple)
 
-addMultiple :: PrimeGenerator -> Int -> PrimeGenerator
+addMultiple :: OddPrimeGenerator -> Int -> OddPrimeGenerator
 addMultiple generator multiple =
-  PrimeGenerator {
+  OddPrimeGenerator {
     primes = primes generator,
     multiplesOfPrimes = multiplesOfPrimes generator ++ [multiple]
   }
 
-addPrime :: PrimeGenerator -> Int -> PrimeGenerator
+addPrime :: OddPrimeGenerator -> Int -> OddPrimeGenerator
 addPrime generator prime =
-  PrimeGenerator {
+  OddPrimeGenerator {
     primes = primes generator ++ [prime],
     multiplesOfPrimes = multiplesOfPrimes generator
   }

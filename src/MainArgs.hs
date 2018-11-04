@@ -20,3 +20,11 @@ newtype SlidingPuzzleArgs = SlidingPuzzleArgs
 parseSlidingPuzzleArgs :: [String] -> SlidingPuzzleArgs
 parseSlidingPuzzleArgs [shuffleMoves] = SlidingPuzzleArgs {shuffleMoves = read shuffleMoves}
 parseSlidingPuzzleArgs _       = error "trailing arguments"
+
+newtype PrimeNumbersArgs = PrimeNumbersArgs
+  { upper :: Int
+  }
+
+parsePrimeNumbersArgs :: [String] -> PrimeNumbersArgs
+parsePrimeNumbersArgs [upper] = PrimeNumbersArgs {upper = read upper}
+parsePrimeNumbersArgs _       = error "trailing arguments"

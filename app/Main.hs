@@ -3,6 +3,7 @@ module Main where
 import           BowlingGame
 import           MainArgs
 import           SlidingPuzzle
+import           PrimeNumbers
 import           Data.List
 import           System.Environment
 import           System.Random
@@ -15,6 +16,7 @@ main = fmap run getArgs >>= putStrLn
 run :: [String] -> String
 run ("BowlingGame":args)   = runBowlingGame (parseBowlingGameArgs args)
 run ("SlidingPuzzle":args) = runSlidingPuzzle (parseSlidingPuzzleArgs args)
+run ("PrimeNumbers":args)  = runPrimeNumbers (parsePrimeNumbersArgs args)
 run _                      = "Kata name required : BowlingGame | SlidingPuzzle"
 
 -- run the bowling game
@@ -34,6 +36,11 @@ runSlidingPuzzle args =
         "puzzle=\n%s\nmoves=%s"
         (printSlidingPuzzle shuffledPuzzle)
         (show $ moves solution)
+
+-- run the prime numbers generator
+runPrimeNumbers :: PrimeNumbersArgs -> String
+runPrimeNumbers args =
+  show $ generatePrimesUntil (upper args)
 
 -- display the given puzzle
 printSlidingPuzzle :: SlidingPuzzle -> String

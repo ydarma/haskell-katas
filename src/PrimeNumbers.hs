@@ -8,8 +8,12 @@ data OddPrimeGenerator = OddPrimeGenerator
 makeOddPrimeGenerator :: OddPrimeGenerator
 makeOddPrimeGenerator = OddPrimeGenerator {primes = [3], multiplesOfPrimes = []}
 
-generatePrimesUntil :: Int -> OddPrimeGenerator
-generatePrimesUntil upper =
+generatePrimesUntil :: Int -> [Int]
+generatePrimesUntil 2 = [2]
+generatePrimesUntil upper = 2 : (primes $ generateOddPrimesUntil upper)
+
+generateOddPrimesUntil :: Int -> OddPrimeGenerator
+generateOddPrimesUntil upper =
   let accumulate generator candidate = fst (isPrime generator candidate)
    in foldl accumulate makeOddPrimeGenerator [5, 7..upper]
 

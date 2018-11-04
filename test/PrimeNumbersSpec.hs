@@ -77,9 +77,9 @@ test_isPrime =
       assertEqual "Primes are [3, 5, 7, 11, 13]" [3, 5, 7, 11, 13] (primes generator15) >>
       assertEqual "Multiples is [15]" [15] (multiplesOfPrimes generator15)
 
-test_generateUntil :: TestTree
-test_generateUntil =
-  let generator = generatePrimesUntil 30
+test_generateOddUntil :: TestTree
+test_generateOddUntil =
+  let generator = generateOddPrimesUntil 30
    in testCase "Testing prime generation" $
       assertEqual
         "Primes are [3, 5, 7, 11, 13, 17, 19, 23, 29]"
@@ -89,9 +89,23 @@ test_generateUntil =
 
 test_notGreaterThan :: TestTree
 test_notGreaterThan =
-  let generator157 = generatePrimesUntil 157
-      generator162 = generatePrimesUntil 162
+  let generator157 = generateOddPrimesUntil 157
+      generator162 = generateOddPrimesUntil 162
    in testCase "Testing 157 is prime" $
       assertEqual "157 is prime" 157 (last $ primes generator157) >>
       assertEqual "157 is 36th odd prime" 36 (length $ primes generator157) >>
       assertEqual "No prime between 158 and 162" 157 (last $ primes generator162)
+
+test_generateUntil :: TestTree
+test_generateUntil =
+  let primes2 = generatePrimesUntil 2
+      primes3 = generatePrimesUntil 3
+      primes30 = generatePrimesUntil 30
+   in testCase "Testing prime generation" $
+      assertEqual "Primes are [2]" [2] primes2 >>
+      assertEqual "Primes are [2, 3]" [2, 3] primes3 >>
+      assertEqual
+        "Primes are [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]"
+        [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+        primes30
+
